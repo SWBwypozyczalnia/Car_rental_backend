@@ -1,26 +1,33 @@
 package wypozyczalnia.example.wypozyczalnia.demo.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import wypozyczalnia.example.wypozyczalnia.demo.entities.Car;
+import wypozyczalnia.example.wypozyczalnia.demo.repositories.CarRepository;
 import wypozyczalnia.example.wypozyczalnia.demo.requests.*;
 import wypozyczalnia.example.wypozyczalnia.demo.services.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/cars")
 public class CarController {
     private final CarService carService;
     private final TokenService tokenService;
+    private final CarRepository carRepository;
 
-    public CarController(CarService carService, TokenService tokenService){
+    public CarController(CarService carService, TokenService tokenService, CarRepository carRepository){
         this.carService = carService;
         this.tokenService = tokenService;
+        this.carRepository = carRepository;
     }
 
     @PostMapping("/add")
@@ -137,4 +144,5 @@ public class CarController {
     public ResponseEntity < ? > getCarImage(@PathVariable String imageId) {
         return carService.getCarImage(imageId);
     }
+
 }

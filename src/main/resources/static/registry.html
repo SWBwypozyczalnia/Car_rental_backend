@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Rejestracja</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+</head>
+<body>
+    <div id="wrapper">
+        
+				<!-- Header -->
+                <header id="header">
+                    <div class="inner">
+                        <!-- Logo -->
+                            <a href="index.html" class="logo">
+                                <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Rejestracja</span>
+                            </a>
+
+                        <!-- Nav -->
+                            <nav>
+                                <ul>
+                                    <li><a href="#menu">Menu</a></li>
+                                </ul>
+                            </nav>
+                    </div>
+                </header>
+
+            <!-- Menu -->
+                <nav id="menu">
+                    <h2>Menu</h2>
+                    <ul id="menu-list"></ul>
+                </nav>
+
+
+        <!-- Formularz rejestracji -->
+        <div id="register-wrapper">
+            <h2>Rejestracja</h2>
+            <label for="firstName">Imię:</label>
+            <input type="text" id="firstName" required>
+            <br>
+            
+            <label for="lastName">Nazwisko:</label>
+            <input type="text" id="lastName" required>
+            <br>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+            <br>
+            
+            <label for="phoneNumber">Numer telefonu:</label>
+            <input type="tel" id="phoneNumber" required>
+            <br>
+            
+            <label for="password">Hasło:</label>
+            <input type="password" id="password" required>
+            <br>
+            
+            <label for="repPassword">Powtórz hasło:</label>
+            <input type="password" id="repPassword" required>
+            <br>
+            
+            <button id="register-button">Zarejestruj się</button>
+        </div>
+    </div>
+    
+
+    <script>
+        document.getElementById("register-button").addEventListener("click", function() {
+            // Pobieranie wartości z pól tekstowych
+            const firstName = document.getElementById("firstName").value;
+            const lastName = document.getElementById("lastName").value;
+            const email = document.getElementById("email").value;
+            const phoneNumber = document.getElementById("phoneNumber").value;
+            const password = document.getElementById("password").value;
+            const repPassword = document.getElementById("repPassword").value;
+
+            // Sprawdzanie, czy wszystkie pola są wypełnione
+            if (!firstName || !lastName || !email || !phoneNumber || !password || !repPassword) {
+                alert("Proszę uzupełnić wszystkie pola.");
+                return;
+            }
+
+            // Tworzenie obiektu z danymi rejestracyjnymi
+            const registrationData = {
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                phoneNumber: phoneNumber,
+                password: password,
+                repPassword: repPassword
+            };
+
+            // Wysyłanie żądania POST do endpointu rejestracji
+            fetch("http://localhost:8080/api/users/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(registrationData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .then(data => {
+                // Rejestracja udana
+                alert("Rejestracja zakończona sukcesem: " + data);
+                window.location.href = "login.html"; // Przekierowanie na stronę logowania
+            })
+            .catch(error => {
+                console.error("Registration error:", error);
+                alert("Błąd rejestracji: " + error.message);
+            });
+        });
+    </script>
+
+    <script src="menuHandler.js"></script>
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

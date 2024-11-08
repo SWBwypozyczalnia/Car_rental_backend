@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Informacje o samochodzie</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+</head>
+<body>
+    <div id="wrapper">
+        <!-- Header -->
+        <header id="header">
+            <div class="inner">
+                <!-- Logo -->
+                    <a href="index.html" class="logo">
+                        <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Samochód</span>
+                    </a>
+
+                <!-- Nav -->
+                    <nav>
+                        <ul>
+                            <li><a href="#menu">Menu</a></li>
+                        </ul>
+                    </nav>
+            </div>
+        </header>
+
+        <!-- Menu -->
+        <nav id="menu">
+            <h2>Menu</h2>
+            <ul id="menu-list"></ul>
+        </nav>
+
+        <div id="register">    
+            <div id="car-info">
+                <h2>Informacje o samochodzie</h2>
+                <div id="car-details">
+                    Ładowanie danych samochodu...
+                </div>
+            </div>
+        </div>
+
+        <!-- Kalendarz -->
+        <div>
+            <h2>Wybierz przedział dat</h2>
+            <input type="text" id="datePicker" placeholder="Wybierz daty">
+            <button id="printDates">Wypisz daty na konsolę</button>
+            <button id="submitReservation">Wyślij rezerwację</button>
+        </div>
+
+    </div>
+
+    
+
+
+    <script>
+        // Pobieranie ID samochodu z parametrów URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const carId = urlParams.get('id');
+
+        if (carId) {
+            // Wykonanie zapytania GET do backendu
+            fetch(`http://localhost:8080/api/cars/${carId}`, {
+                method: 'GET',
+                credentials: 'include' // Jeśli wymagana jest autoryzacja z ciasteczkami
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .then(data => {
+                // Wyświetlanie danych samochodu
+                const carDetails = `
+                    <p><strong>ID:</strong> ${data.id}</p>
+                    <p><strong>Marka:</strong> ${data.mark}</p>
+                    <p><strong>Model:</strong> ${data.model}</p>
+                    <p><strong>Numer rejestracyjny:</strong> ${data.numberPlate}</p>
+                    <p><strong>Cena:</strong> ${data.price} PLN</p>
+                    <p><strong>Opis:</strong> ${data.description}</p>
+                    <div><strong>Zdjęcia:</strong></div>
+                    ${data.imageUuids.map(uuid => `
+                        <img src="http://localhost:8080/api/cars/images/${uuid}" alt="Zdjęcie samochodu" style="width:200px; margin:10px;">
+                    `).join('')}
+                    ${data.mainImageUuid ? `<div><strong>Zdjęcie główne:</strong><br>
+                    <img src="http://localhost:8080/api/cars/images/${data.mainImageUuid}" alt="Główne zdjęcie samochodu" style="width:300px; margin:10px;"></div>` : ''}
+                `;
+                document.getElementById("car-details").innerHTML = carDetails;
+            })
+            .catch(error => {
+                console.error("Błąd podczas pobierania danych samochodu:", error);
+                document.getElementById("car-details").textContent = "Nie udało się pobrać danych samochodu.";
+            });
+        } else {
+            document.getElementById("car-details").textContent = "Brak ID samochodu w adresie URL.";
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            //pobranie dat do zablokowania
+            // Ustawienie daty wczoraj
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const formattedYesterday = yesterday.toISOString().split('T')[0];
+
+            // Wysyłanie żądania GET do endpointu
+            fetch(`http://localhost:8080/api/reservation/car?carId=${carId}&date=${formattedYesterday}`, {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error("Błąd serwera:", text);
+                        throw new Error(`HTTP ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Otrzymane rezerwacje:", data);
+
+            // Przetwarzanie dat do zablokowania
+            const disabledDates = [];
+            data.forEach(reservation => {
+                const startDate = new Date(reservation.startingDate);
+                const endDate = new Date(reservation.endDate);
+
+                // Dodanie każdej daty z zakresu do tablicy
+                for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                    disabledDates.push(new Date(d).toISOString().split('T')[0]);
+                }
+            });
+
+            // Inicjalizacja kalendarza
+            flatpickr("#datePicker", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                inline: true,
+                disable: disabledDates
+            });
+
+            // Obsługa przycisku
+            document.getElementById("printDates").addEventListener("click", function() {
+            const datePicker = document.getElementById("datePicker")._flatpickr;
+            const selectedDates = datePicker.selectedDates;
+            
+            if (selectedDates.length === 2) {
+                const startingDate = formatDate(selectedDates[0]);
+                const endDate = formatDate(selectedDates[1]);
+                
+                console.log("Początkowa data:", startingDate);
+                console.log("Końcowa data:", endDate);
+            } else {
+                console.log("Wybierz pełny przedział dat.");
+            }
+        });
+
+        // Funkcja do formatowania daty do 'YYYY-MM-DD'
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        });
+    });
+    </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("submitReservation").addEventListener("click", function() {
+        // Pobieranie danych z kalendarza
+        const datePicker = document.getElementById("datePicker")._flatpickr;
+        const selectedDates = datePicker.selectedDates;
+        
+        if (selectedDates.length !== 2) {
+            console.log("Wybierz pełny przedział dat.");
+            alert("Wybierz pełny przedział dat.");
+            return;
+        }
+
+        const startingDate = formatDate(selectedDates[0]);
+        const endDate = formatDate(selectedDates[1]);
+        const reservationDate = formatDate(new Date()); // Dzisiejsza data
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Pobieranie carId z URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const carId = urlParams.get('id');
+        const userId = localStorage.getItem("userId");
+
+        if (!carId) {
+            console.log("Brak ID samochodu w adresie URL.");
+            alert("Brak ID samochodu w adresie URL.");
+            return;
+        }
+
+        // Tworzenie obiektu z danymi rezerwacji
+        const reservationRequest = {
+            userId: userId, // Tymczasowe ustawienie na 1
+            carId: carId,
+            reservationDate: reservationDate,
+            startingDate: startingDate,
+            endDate: endDate
+        };
+
+        // Wysyłanie żądania POST do backendu
+        fetch('http://localhost:8080/api/reservation/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include', // Wysyła ciasteczka z zapytaniem
+            body: JSON.stringify(reservationRequest)
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Odczytanie odpowiedzi błędu jako tekst, aby wypisać ją na konsolę
+                return response.text().then(text => {
+                    console.error("Błąd serwera:", text);
+                    alert(`Błąd serwera: ${text}`);
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Odpowiedź serwera:", data);
+            alert("Rezerwacja została wysłana.");
+        })
+        .catch(error => {
+            console.error("Błąd:", error);
+            alert(`Wystąpił błąd podczas wysyłania rezerwacji: ${error.message}`);
+        });
+    });
+});
+
+
+</script>
+
+
+    <script src="menuHandler.js"></script>
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+
+</body>
+</html>

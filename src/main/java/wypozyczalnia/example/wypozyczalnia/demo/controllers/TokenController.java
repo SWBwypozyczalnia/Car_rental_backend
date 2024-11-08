@@ -61,4 +61,12 @@ public class TokenController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing cookie");
         }
     }
+
+    @GetMapping("check")
+    public ResponseEntity<?> checkLoginStatus(@CookieValue(value = "accessToken", defaultValue = "") String accessToken) {
+        if (accessToken == null || accessToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        }
+        return ResponseEntity.ok("User is logged in");
+    }
 }

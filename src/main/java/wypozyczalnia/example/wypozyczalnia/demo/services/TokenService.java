@@ -79,14 +79,18 @@ public class TokenService {
                 addToken(user.getId(), refreshToken);
                 // adding refresh token to cookies
                 Cookie cookie = new Cookie("refreshToken", refreshToken);
-                cookie.setHttpOnly(true);
-                cookie.setPath("");
-                String cookieValue = String.format("%s=%s; HttpOnly; Path=/", cookie.getName(), cookie.getValue());
+                cookie.setHttpOnly(false);
+                cookie.setPath("/");
+                cookie.setMaxAge(60 * 60 * 24); // 1 dzień
+                cookie.setSecure(false); // Na lokalne testy, na produkcji ustaw na true
+                String cookieValue = String.format("%s=%s; HttpOnly; Path=/; SameSite=Lax", cookie.getName(), cookie.getValue());
 
                 Cookie cookieAccess = new Cookie("accessToken", accessToken);
-                cookieAccess.setHttpOnly(true);
-                cookieAccess.setPath("");
-                String cookieValueAccess = String.format("%s=%s; HttpOnly; Path=/", cookieAccess.getName(), cookieAccess.getValue());
+                cookieAccess.setHttpOnly(false);
+                cookieAccess.setPath("/");
+                cookieAccess.setMaxAge(60 * 60 * 24); // 1 dzień
+                cookieAccess.setSecure(false); // Na lokalne testy, na produkcji ustaw na true
+                String cookieValueAccess = String.format("%s=%s; HttpOnly; Path=/; SameSite=Lax", cookieAccess.getName(), cookieAccess.getValue());
 
                 LoginDTO loginDTO = new LoginDTO(user.getId(), user.isAdmin());
                 return ResponseEntity.ok()
