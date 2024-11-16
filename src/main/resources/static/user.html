@@ -33,24 +33,25 @@
             <ul id="menu-list"></ul>
         </nav>
 
-
+        <!-- User Details -->
         <div id="register">
             <div id="user-info">
                 <h2>Dane użytkownika</h2>
-                <p id="user-details">Ładowanie danych...</p>
+                <p id="user-details">Ładowanie danych użytkownika...</p>
+            </div>
+            <div id="user-reservations">
+                <h2>Rezerwacje użytkownika</h2>
+                <p id="reservations-details">Ładowanie rezerwacji...</p>
             </div>
         </div>
     </div>
 
-
-
-
-    
-
+    <!-- Scripts -->
+    <script src="config.js"></script>
     <script>
         // Funkcja do pobrania danych użytkownika
         function fetchUserData() {
-            fetch("http://localhost:8080/api/users", {
+            fetch(`${API_BASE_URL}/users`, {
                 method: "GET",
                 credentials: "include" // Dodanie ciasteczek do żądania
             })
@@ -62,7 +63,6 @@
                 }
             })
             .then(data => {
-                // Wyświetlanie danych użytkownika
                 const userDetails = `
                     <strong>ID:</strong> ${data.id} <br>
                     <strong>Imię:</strong> ${data.firstname} <br>
@@ -78,17 +78,93 @@
             });
         }
 
+        // Funkcja do pobrania rezerwacji użytkownika
+        function fetchUserReservations() {
+            const userId = localStorage.getItem("userId");
+
+            if (!userId) {
+                document.getElementById("reservations-details").textContent = "Nie znaleziono użytkownika.";
+                return;
+            }
+
+            fetch(`${API_BASE_URL}/reservation/user/${userId}`, {
+                method: "GET",
+                credentials: "include"
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .then(reservations => {
+                displayReservations(reservations);
+            })
+            .catch(error => {
+                console.error("Błąd podczas pobierania rezerwacji:", error);
+                document.getElementById("reservations-details").textContent = "Nie udało się pobrać rezerwacji użytkownika.";
+            });
+        }
+
+        // Funkcja do wyświetlania rezerwacji w tabeli
+        function displayReservations(reservations) {
+            const reservationsContainer = document.getElementById("reservations-details");
+
+            if (!reservations || reservations.length === 0) {
+                reservationsContainer.innerHTML = "Brak rezerwacji dla tego użytkownika.";
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Rezerwacji</th>
+                            <th>Samochód</th>
+                            <th>Data Rezerwacji</th>
+                            <th>Data Rozpoczęcia</th>
+                            <th>Data Zakończenia</th>
+                            <th>Odebrano</th>
+                            <th>Zwrócono</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            reservations.forEach(reservation => {
+                tableHTML += `
+                    <tr>
+                        <td>${reservation.id}</td>
+                        <td>${reservation.carDTO.make} ${reservation.carDTO.model}</td>
+                        <td>${reservation.reservationDate}</td>
+                        <td>${reservation.startingDate}</td>
+                        <td>${reservation.endDate}</td>
+                        <td>${reservation.picked_up ? "Tak" : "Nie"}</td>
+                        <td>${reservation.returned ? "Tak" : "Nie"}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            reservationsContainer.innerHTML = tableHTML;
+        }
+
         // Wywołanie funkcji po załadowaniu strony
-        window.onload = fetchUserData;
+        window.onload = function () {
+            fetchUserData();
+            fetchUserReservations();
+        };
     </script>
-
     <script src="menuHandler.js"></script>
-
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/browser.min.js"></script>
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
-
 </body>
 </html>

@@ -65,7 +65,7 @@
         </div>
     </div>
     
-
+    <script src="config.js"></script>
     <script>
         document.getElementById("register-button").addEventListener("click", function() {
             // Pobieranie wartości z pól tekstowych
@@ -93,7 +93,7 @@
             };
 
             // Wysyłanie żądania POST do endpointu rejestracji
-            fetch("http://localhost:8080/api/users/register", {
+            fetch(`${API_BASE_URL}/users/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

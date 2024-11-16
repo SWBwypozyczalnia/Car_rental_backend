@@ -54,6 +54,7 @@
 
 
     <!-- Skrypt do obsługi logowania -->
+    <script src="config.js"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Skrypt logowania
@@ -71,7 +72,7 @@
                 password: password
             };
 
-            fetch("http://localhost:8080/api/auth/login", {
+            fetch(`${API_BASE_URL}/auth/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
