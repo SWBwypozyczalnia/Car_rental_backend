@@ -1,0 +1,5 @@
+runtime: java21
+env_variables:
+  SPRING_DATASOURCE_URL: jdbc:postgresql:///wypozyczalnia?cloudSqlInstance=537115764749:europe-central2:swb-wypozyczalnia&socketFactory=com.google.cloud.sql.postgres.SocketFactory
+  SPRING_DATASOURCE_USERNAME: postgres
+  SPRING_DATASOURCE_PASSWORD: 7t9<SZ4oVTI/i^{A

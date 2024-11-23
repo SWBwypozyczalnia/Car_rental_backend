@@ -78,7 +78,11 @@
 			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.google.cloud.sql</groupId>
+			<artifactId>postgres-socket-factory</artifactId>
+			<version>1.11.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
