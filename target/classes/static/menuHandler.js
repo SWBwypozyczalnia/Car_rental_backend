@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     menuList.appendChild(mainPageLink);
 
     console.log("Wysłanie zapytania na /auth/check...");
-    fetch(`http://localhost:8080/api/auth/check`, {
+    fetch(`${API_BASE_URL}/api/auth/check`, {
         method: "GET",
         credentials: "include",
     })
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .getElementById("logout-button")
                 .addEventListener("click", function () {
                     console.log("Kliknięcie przycisku Wyloguj. Wysyłanie zapytania...");
-                    fetch(`http://localhost:8080/api/auth/logout`, {
+                    fetch(`${API_BASE_URL}/api/auth/logout`, {
                         method: "DELETE",
                         credentials: "include",
                     })

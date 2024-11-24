@@ -57,7 +57,7 @@
 
         // Pobierz szczegóły samochodu
         if (carId) {
-            fetch(`${API_BASE_URL}/cars/${carId}`, {
+            fetch(`${API_BASE_URL}/api/cars/${carId}`, {
                 method: 'GET',
                 credentials: 'include'
             })
@@ -99,7 +99,7 @@
             yesterday.setDate(yesterday.getDate() - 1);
             const formattedYesterday = yesterday.toISOString().split("T")[0];
 
-            fetch(`${API_BASE_URL}/reservation/car?carId=${carId}&date=${formattedYesterday}`, {
+            fetch(`${API_BASE_URL}/api/reservation/car?carId=${carId}&date=${formattedYesterday}`, {
                 method: "GET",
                 credentials: "include"
             })
@@ -162,7 +162,7 @@
                     endDate: endDate,
                 };
 
-                fetch(`${API_BASE_URL}/reservation/add`, {
+                fetch(`${API_BASE_URL}/api/reservation/add`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

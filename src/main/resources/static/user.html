@@ -51,7 +51,7 @@
     <script>
         // Funkcja do pobrania danych użytkownika
         function fetchUserData() {
-            fetch(`${API_BASE_URL}/users`, {
+            fetch(`${API_BASE_URL}/api/users`, {
                 method: "GET",
                 credentials: "include" // Dodanie ciasteczek do żądania
             })
@@ -87,7 +87,7 @@
                 return;
             }
 
-            fetch(`${API_BASE_URL}/reservation/user/${userId}`, {
+            fetch(`${API_BASE_URL}/api/reservation/user/${userId}`, {
                 method: "GET",
                 credentials: "include"
             })
