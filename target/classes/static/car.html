@@ -1,212 +1,65 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Informacje o samochodzie</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <title>Samochód</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
-    <div id="wrapper">
-        <!-- Header -->
-        <header id="header">
-            <div class="inner">
-                <a href="index.html" class="logo">
-                    <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Samochód</span>
-                </a>
-                <nav>
-                    <ul>
-                        <li><a href="#menu">Menu</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
-
-        <!-- Menu -->
-        <nav id="menu">
-            <h2>Menu</h2>
-            <ul id="menu-list"></ul>
-        </nav>
-
-        <!-- Informacje o samochodzie -->
-        <div id="register">    
-            <div id="car-info">
-                <h2>Informacje o samochodzie</h2>
-                <div id="car-details">
-                    Ładowanie danych samochodu...
-                </div>
-            </div>
+<div id="wrapper">
+    <!-- Header -->
+    <header id="header">
+        <div class="inner">
+            <a href="index.html" class="logo">
+                <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Szczegóły samochodu</span>
+            </a>
         </div>
+    </header>
 
-        <!-- Kalendarz -->
-        <div>
-            <h2>Wybierz przedział dat</h2>
-            <input type="text" id="datePicker" placeholder="Wybierz daty">
-            <button id="printDates">Wypisz daty na konsolę</button>
-            <button id="submitReservation">Wyślij rezerwację</button>
+    <!-- Główna sekcja -->
+    <div id="main">
+        <div class="inner">
+            <h1 id="car-title">Ładowanie...</h1>
+            <div class="image main">
+                <img id="car-image" src="images/placeholder.png" alt="Samochód">
+            </div>
+            <p id="car-description">Ładowanie opisu samochodu...</p>
+            <h2>Cena za dzień: <span id="car-price"></span> PLN</h2>
         </div>
     </div>
 
-    <!-- Skrypty -->
-    <script src="config.js"></script>
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const carId = urlParams.get('id');
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <p>&copy; Wypożyczalnia samochodów. All rights reserved.</p>
+        </div>
+    </footer>
+</div>
 
-        // Pobierz szczegóły samochodu
-        if (carId) {
-            fetch(`${API_BASE_URL}/cars/${carId}`, {
-                method: 'GET',
-                credentials: 'include'
+<script>
+    // Pobranie ID samochodu z parametru URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const carId = urlParams.get("id");
+
+    // Sprawdzenie, czy ID jest obecne
+    if (!carId) {
+        document.querySelector("#main").innerHTML = "<h1>Nie znaleziono samochodu</h1>";
+    } else {
+        // Pobranie danych samochodu z API
+        fetch(`http://localhost:8080/api/cars/${carId}`)
+            .then((response) => response.json())
+            .then((car) => {
+                document.querySelector("#car-title").textContent = `${car.mark} ${car.model}`;
+                document.querySelector("#car-image").src = `http://localhost:8080/api/cars/images/${car.id}`;
+                document.querySelector("#car-description").textContent = car.description;
+                document.querySelector("#car-price").textContent = car.price;
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    return response.text().then(text => { throw new Error(text); });
-                }
-            })
-            .then(data => {
-                const carDetails = `
-                    <p><strong>ID:</strong> ${data.id}</p>
-                    <p><strong>Marka:</strong> ${data.mark}</p>
-                    <p><strong>Model:</strong> ${data.model}</p>
-                    <p><strong>Numer rejestracyjny:</strong> ${data.numberPlate}</p>
-                    <p><strong>Cena:</strong> ${data.price} PLN</p>
-                    <p><strong>Opis:</strong> ${data.description}</p>
-                    <div><strong>Zdjęcia:</strong></div>
-                    ${data.imageUuids.map(uuid => `
-                        <img src="${API_BASE_URL}/cars/images/${uuid}" alt="Zdjęcie samochodu" style="width:200px; margin:10px;">
-                    `).join('')}
-                    ${data.mainImageUuid ? `<div><strong>Zdjęcie główne:</strong><br>
-                    <img src="${API_BASE_URL}/cars/images/${data.mainImageUuid}" alt="Główne zdjęcie samochodu" style="width:300px; margin:10px;"></div>` : ''}
-                `;
-                document.getElementById("car-details").innerHTML = carDetails;
-            })
-            .catch(error => {
-                console.error("Błąd podczas pobierania danych samochodu:", error);
-                document.getElementById("car-details").textContent = "Nie udało się pobrać danych samochodu.";
+            .catch((error) => {
+                console.error("Błąd ładowania szczegółów samochodu:", error);
+                document.querySelector("#main").innerHTML = "<h1>Błąd ładowania szczegółów samochodu</h1>";
             });
-        } else {
-            document.getElementById("car-details").textContent = "Brak ID samochodu w adresie URL.";
-        }
-
-        // Funkcja do odświeżania kalendarza
-        function refreshCalendar() {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const formattedYesterday = yesterday.toISOString().split("T")[0];
-
-            fetch(`${API_BASE_URL}/reservation/car?carId=${carId}&date=${formattedYesterday}`, {
-                method: "GET",
-                credentials: "include"
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP ${response.status}: ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                const disabledDates = [];
-                data.forEach(reservation => {
-                    const startDate = new Date(reservation.startingDate);
-                    const endDate = new Date(reservation.endDate);
-
-                    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                        disabledDates.push(new Date(d).toISOString().split("T")[0]);
-                    }
-                });
-
-                const datePicker = document.getElementById("datePicker")._flatpickr;
-                datePicker.set("disable", disabledDates);
-            })
-            .catch(error => {
-                console.error("Błąd podczas odświeżania kalendarza:", error);
-            });
-        }
-
-        // Inicjalizacja kalendarza
-        document.addEventListener("DOMContentLoaded", function () {
-            const datePicker = flatpickr("#datePicker", {
-                mode: "range",
-                dateFormat: "Y-m-d",
-                minDate: "today",
-                inline: true,
-            });
-
-            refreshCalendar(); // Inicjalizacja zablokowanych dat
-
-            document.getElementById("submitReservation").addEventListener("click", function () {
-                const selectedDates = datePicker.selectedDates;
-
-                if (selectedDates.length !== 2) {
-                    alert("Wybierz pełny przedział dat.");
-                    return;
-                }
-
-                const startingDate = formatDate(selectedDates[0]);
-                const endDate = formatDate(selectedDates[1]);
-                const reservationDate = formatDate(new Date());
-                const userId = localStorage.getItem("userId");
-
-                const reservationRequest = {
-                    userId: userId,
-                    carId: carId,
-                    reservationDate: reservationDate,
-                    startingDate: startingDate,
-                    endDate: endDate,
-                };
-
-                fetch(`${API_BASE_URL}/reservation/add`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    credentials: "include",
-                    body: JSON.stringify(reservationRequest),
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(`HTTP ${response.status}: ${text}`);
-                        });
-                    }
-                    // Sprawdzenie formatu odpowiedzi
-                    if (response.headers.get("content-type")?.includes("application/json")) {
-                        return response.json();
-                    } else {
-                        return response.text();
-                    }
-                })
-                .then(() => {
-                    alert("Rezerwacja została pomyślnie dodana.");
-                    refreshCalendar(); // Odświeżenie kalendarza po rezerwacji
-                })
-                .catch(error => {
-                    alert(`Wystąpił błąd podczas dodawania rezerwacji: ${error.message}`);
-                });
-            });
-
-            function formatDate(date) {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, "0");
-                const day = String(date.getDate()).padStart(2, "0");
-                return `${year}-${month}-${day}`;
-            }
-        });
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="menuHandler.js"></script>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+    }
+</script>
 </body>
 </html>

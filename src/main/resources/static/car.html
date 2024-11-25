@@ -31,7 +31,7 @@
         </nav>
 
         <!-- Informacje o samochodzie -->
-        <div id="register">    
+        <div id="register">
             <div id="car-info">
                 <h2>Informacje o samochodzie</h2>
                 <div id="car-details">
@@ -68,23 +68,19 @@
                     return response.text().then(text => { throw new Error(text); });
                 }
             })
-            .then(data => {
-                const carDetails = `
-                    <p><strong>ID:</strong> ${data.id}</p>
-                    <p><strong>Marka:</strong> ${data.mark}</p>
-                    <p><strong>Model:</strong> ${data.model}</p>
-                    <p><strong>Numer rejestracyjny:</strong> ${data.numberPlate}</p>
-                    <p><strong>Cena:</strong> ${data.price} PLN</p>
-                    <p><strong>Opis:</strong> ${data.description}</p>
-                    <div><strong>Zdjęcia:</strong></div>
-                    ${data.imageUuids.map(uuid => `
-                        <img src="${API_BASE_URL}/cars/images/${uuid}" alt="Zdjęcie samochodu" style="width:200px; margin:10px;">
-                    `).join('')}
-                    ${data.mainImageUuid ? `<div><strong>Zdjęcie główne:</strong><br>
-                    <img src="${API_BASE_URL}/cars/images/${data.mainImageUuid}" alt="Główne zdjęcie samochodu" style="width:300px; margin:10px;"></div>` : ''}
-                `;
-                document.getElementById("car-details").innerHTML = carDetails;
-            })
+                .then(data => {
+                    const carDetails = `
+        <p><strong>ID:</strong> ${data.id}</p>
+        <p><strong>Marka:</strong> ${data.mark}</p>
+        <p><strong>Model:</strong> ${data.model}</p>
+        <p><strong>Numer rejestracyjny:</strong> ${data.numberPlate}</p>
+        <p><strong>Cena:</strong> ${data.price} PLN</p>
+        <p><strong>Opis:</strong> ${data.description}</p>
+        <div><strong>Główne zdjęcie:</strong></div>
+        <img src="${API_BASE_URL}/cars/images/${data.id}" alt="Główne zdjęcie samochodu" style="width:300px; margin:10px;">
+    `;
+                    document.getElementById("car-details").innerHTML = carDetails;
+                })
             .catch(error => {
                 console.error("Błąd podczas pobierania danych samochodu:", error);
                 document.getElementById("car-details").textContent = "Nie udało się pobrać danych samochodu.";
