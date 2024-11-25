@@ -26,55 +26,55 @@
     </style>
 </head>
 <body>
-    <div id="wrapper">
+<div id="wrapper">
 
-        <!-- Header -->
-        <header id="header">
-            <div class="inner">
-                <a href="index.html" class="logo">
-                    <span class="symbol"><img src="images/icon.png" alt="" /></span><span class="title">Strona użytkownika</span>
-                </a>
-                <!-- Nav -->
-                <nav>
-                    <ul>
-                        <li><a href="#menu">Menu</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
+    <!-- Header -->
+    <header id="header">
+        <div class="inner">
+            <a href="index.html" class="logo">
+                <span class="symbol"><img src="images/icon.png" alt="" /></span><span class="title">Strona użytkownika</span>
+            </a>
+            <!-- Nav -->
+            <nav>
+                <ul>
+                    <li><a href="#menu">Menu</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-        <!-- Menu -->
-        <nav id="menu">
-            <h2>Menu</h2>
-            <ul id="menu-list"></ul>
-        </nav>
+    <!-- Menu -->
+    <nav id="menu">
+        <h2>Menu</h2>
+        <ul id="menu-list"></ul>
+    </nav>
 
-        <!-- User Details -->
-        <div id="register">
-            <div id="user-info">
-                <p id="user-details">Ładowanie danych użytkownika...</p>
-            </div>
-            <div id="user-reservations">
-                <h2>Rezerwacje użytkownika</h2>
-                <div id="reservations-details">Ładowanie rezerwacji...</div>
-                <div class="pagination" id="pagination"></div>
-            </div>
+    <!-- User Details -->
+    <div id="register">
+        <div id="user-info">
+            <p id="user-details">Ładowanie danych użytkownika...</p>
+        </div>
+        <div id="user-reservations">
+            <h2>Rezerwacje użytkownika</h2>
+            <div id="reservations-details">Ładowanie rezerwacji...</div>
+            <div class="pagination" id="pagination"></div>
         </div>
     </div>
+</div>
 
-    <!-- Scripts -->
-    <script src="config.js"></script>
-    <script>
-        const RESERVATIONS_PER_PAGE = 10;
-        let currentPage = 1;
-        let reservationsData = [];
+<!-- Scripts -->
+<script src="config.js"></script>
+<script>
+    const RESERVATIONS_PER_PAGE = 10;
+    let currentPage = 1;
+    let reservationsData = [];
 
-        // Funkcja do pobrania danych użytkownika
-        function fetchUserData() {
-            fetch(`${API_BASE_URL}/api/users`, {
-                method: "GET",
-                credentials: "include" // Dodanie ciasteczek do żądania
-            })
+    // Funkcja do pobrania danych użytkownika
+    function fetchUserData() {
+        fetch(`${API_BASE_URL}/api/users`, {
+            method: "GET",
+            credentials: "include" // Dodanie ciasteczek do żądania
+        })
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -94,21 +94,21 @@
                 console.error("Błąd podczas pobierania danych użytkownika:", error);
                 document.getElementById("user-details").textContent = "Nie udało się pobrać danych użytkownika.";
             });
+    }
+
+    // Funkcja do pobrania rezerwacji użytkownika
+    function fetchUserReservations() {
+        const userId = localStorage.getItem("userId");
+
+        if (!userId) {
+            document.getElementById("reservations-details").textContent = "Nie znaleziono użytkownika.";
+            return;
         }
 
-        // Funkcja do pobrania rezerwacji użytkownika
-        function fetchUserReservations() {
-            const userId = localStorage.getItem("userId");
-
-            if (!userId) {
-                document.getElementById("reservations-details").textContent = "Nie znaleziono użytkownika.";
-                return;
-            }
-
-            fetch(`${API_BASE_URL}/api/reservation/user/${userId}`, {
-                method: "GET",
-                credentials: "include"
-            })
+        fetch(`${API_BASE_URL}/api/reservation/user/${userId}`, {
+            method: "GET",
+            credentials: "include"
+        })
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -125,21 +125,21 @@
                 console.error("Błąd podczas pobierania rezerwacji:", error);
                 document.getElementById("reservations-details").textContent = "Nie udało się pobrać rezerwacji użytkownika.";
             });
+    }
+
+    // Funkcja do wyświetlania rezerwacji w tabeli
+    function displayReservations() {
+        const reservationsContainer = document.getElementById("reservations-details");
+        const startIndex = (currentPage - 1) * RESERVATIONS_PER_PAGE;
+        const endIndex = startIndex + RESERVATIONS_PER_PAGE;
+        const currentReservations = reservationsData.slice(startIndex, endIndex);
+
+        if (currentReservations.length === 0) {
+            reservationsContainer.innerHTML = "Brak rezerwacji dla tego użytkownika.";
+            return;
         }
 
-        // Funkcja do wyświetlania rezerwacji w tabeli
-        function displayReservations() {
-            const reservationsContainer = document.getElementById("reservations-details");
-            const startIndex = (currentPage - 1) * RESERVATIONS_PER_PAGE;
-            const endIndex = startIndex + RESERVATIONS_PER_PAGE;
-            const currentReservations = reservationsData.slice(startIndex, endIndex);
-
-            if (currentReservations.length === 0) {
-                reservationsContainer.innerHTML = "Brak rezerwacji dla tego użytkownika.";
-                return;
-            }
-
-            let tableHTML = `
+        let tableHTML = `
                 <table>
                     <thead>
                         <tr>
@@ -154,10 +154,10 @@
                     <tbody>
             `;
 
-            currentReservations.forEach(reservation => {
-                const car = reservation.carDTO ? 
-                    `${reservation.carDTO.mark || 'Nieznane'} ${reservation.carDTO.model || ''}`.trim() : 'Brak danych';
-                tableHTML += `
+        currentReservations.forEach(reservation => {
+            const car = reservation.carDTO ?
+                `${reservation.carDTO.mark || 'Nieznane'} ${reservation.carDTO.model || ''}`.trim() : 'Brak danych';
+            tableHTML += `
                     <tr>
                         <td>${car}</td>
                         <td>${reservation.reservationDate}</td>
@@ -167,46 +167,46 @@
                         <td>${reservation.returned ? "Tak" : "Nie"}</td>
                     </tr>
                 `;
-            });
+        });
 
-            tableHTML += `
+        tableHTML += `
                     </tbody>
                 </table>
             `;
 
-            reservationsContainer.innerHTML = tableHTML;
+        reservationsContainer.innerHTML = tableHTML;
+    }
+
+    // Funkcja do ustawienia paginacji
+    function setupPagination() {
+        const totalPages = Math.ceil(reservationsData.length / RESERVATIONS_PER_PAGE);
+        const paginationContainer = document.getElementById("pagination");
+        paginationContainer.innerHTML = "";
+
+        for (let i = 1; i <= totalPages; i++) {
+            const button = document.createElement("button");
+            button.textContent = i;
+            button.disabled = i === currentPage;
+            button.onclick = () => {
+                currentPage = i;
+                displayReservations();
+                setupPagination();
+            };
+            paginationContainer.appendChild(button);
         }
+    }
 
-        // Funkcja do ustawienia paginacji
-        function setupPagination() {
-            const totalPages = Math.ceil(reservationsData.length / RESERVATIONS_PER_PAGE);
-            const paginationContainer = document.getElementById("pagination");
-            paginationContainer.innerHTML = "";
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement("button");
-                button.textContent = i;
-                button.disabled = i === currentPage;
-                button.onclick = () => {
-                    currentPage = i;
-                    displayReservations();
-                    setupPagination();
-                };
-                paginationContainer.appendChild(button);
-            }
-        }
-
-        // Wywołanie funkcji po załadowaniu strony
-        window.onload = function () {
-            fetchUserData();
-            fetchUserReservations();
-        };
-    </script>
-    <script src="menuHandler.js"></script>
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+    // Wywołanie funkcji po załadowaniu strony
+    window.onload = function () {
+        fetchUserData();
+        fetchUserReservations();
+    };
+</script>
+<script src="menuHandler.js"></script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>

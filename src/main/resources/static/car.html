@@ -79,20 +79,6 @@
             width: 100%;
         }
 
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007BFF;
-            color: #fff;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
     </style>
     <style>
         .error {
@@ -163,7 +149,7 @@
     const carId = urlParams.get('id');
 
     if (carId) {
-        fetch(`${API_BASE_URL}/cars/${carId}`, { method: 'GET', credentials: 'include' })
+        fetch(`${API_BASE_URL}/api/cars/${carId}`, { method: 'GET', credentials: 'include' })
             .then(response => response.json())
             .then(data => {
                 document.getElementById("car-id").textContent = data.id;
@@ -242,7 +228,6 @@
                 const day = String(date.getDate()).padStart(2, "0");
                 return `${year}-${month}-${day}`;
             }
-        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

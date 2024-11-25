@@ -35,18 +35,7 @@
             flex: 1;
         }
 
-        .filter-section button {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
 
-        .filter-section button:hover {
-            background-color: #0056b3;
-        }
 
         .car-grid {
             display: grid;
@@ -158,7 +147,7 @@
 
     // Funkcja pobierająca listę samochodów z API
     function fetchCarList() {
-        fetch(`${API_BASE_URL}/carList`, { method: 'GET', credentials: 'include' })
+        fetch(`${API_BASE_URL}/api/carList`, { method: 'GET', credentials: 'include' })
             .then(response => response.json())
             .then(data => {
                 carList = data; // Zapisz dane samochodów w pamięci
