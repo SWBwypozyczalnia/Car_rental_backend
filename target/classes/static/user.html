@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <style>
+        /* Dodatkowe style */
+        #user-info, #user-reservations {
+            margin-left: 30px; /* Odstęp od lewej krawędzi */
+        }
+        #reservations-details {
+            margin: 0 30px; /* Marginesy po bokach */
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+    </style>
 </head>
 <body>
     <div id="wrapper">
@@ -13,17 +31,15 @@
         <!-- Header -->
         <header id="header">
             <div class="inner">
-                <!-- Logo -->
-                    <a href="index.html" class="logo">
-                        <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Użytkownik</span>
-                    </a>
-
+                <a href="index.html" class="logo">
+                    <span class="symbol"><img src="images/icon.png" alt="" /></span><span class="title">Strona użytkownika</span>
+                </a>
                 <!-- Nav -->
-                    <nav>
-                        <ul>
-                            <li><a href="#menu">Menu</a></li>
-                        </ul>
-                    </nav>
+                <nav>
+                    <ul>
+                        <li><a href="#menu">Menu</a></li>
+                    </ul>
+                </nav>
             </div>
         </header>
 
@@ -36,12 +52,12 @@
         <!-- User Details -->
         <div id="register">
             <div id="user-info">
-                <h2>Dane użytkownika</h2>
                 <p id="user-details">Ładowanie danych użytkownika...</p>
             </div>
             <div id="user-reservations">
                 <h2>Rezerwacje użytkownika</h2>
-                <p id="reservations-details">Ładowanie rezerwacji...</p>
+                <div id="reservations-details">Ładowanie rezerwacji...</div>
+                <div class="pagination" id="pagination"></div>
             </div>
         </div>
     </div>
@@ -49,6 +65,10 @@
     <!-- Scripts -->
     <script src="config.js"></script>
     <script>
+        const RESERVATIONS_PER_PAGE = 10;
+        let currentPage = 1;
+        let reservationsData = [];
+
         // Funkcja do pobrania danych użytkownika
         function fetchUserData() {
             fetch(`${API_BASE_URL}/api/users`, {
@@ -64,9 +84,7 @@
             })
             .then(data => {
                 const userDetails = `
-                    <strong>ID:</strong> ${data.id} <br>
-                    <strong>Imię:</strong> ${data.firstname} <br>
-                    <strong>Nazwisko:</strong> ${data.lastname} <br>
+                    <strong>Imię i Nazwisko:</strong> ${data.firstname} ${data.lastname} <br>
                     <strong>Email:</strong> ${data.email} <br>
                     <strong>Telefon:</strong> ${data.phoneNumber} <br>
                 `;
@@ -99,7 +117,9 @@
                 }
             })
             .then(reservations => {
-                displayReservations(reservations);
+                reservationsData = reservations;
+                displayReservations();
+                setupPagination();
             })
             .catch(error => {
                 console.error("Błąd podczas pobierania rezerwacji:", error);
@@ -108,10 +128,13 @@
         }
 
         // Funkcja do wyświetlania rezerwacji w tabeli
-        function displayReservations(reservations) {
+        function displayReservations() {
             const reservationsContainer = document.getElementById("reservations-details");
+            const startIndex = (currentPage - 1) * RESERVATIONS_PER_PAGE;
+            const endIndex = startIndex + RESERVATIONS_PER_PAGE;
+            const currentReservations = reservationsData.slice(startIndex, endIndex);
 
-            if (!reservations || reservations.length === 0) {
+            if (currentReservations.length === 0) {
                 reservationsContainer.innerHTML = "Brak rezerwacji dla tego użytkownika.";
                 return;
             }
@@ -120,7 +143,6 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID Rezerwacji</th>
                             <th>Samochód</th>
                             <th>Data Rezerwacji</th>
                             <th>Data Rozpoczęcia</th>
@@ -132,11 +154,12 @@
                     <tbody>
             `;
 
-            reservations.forEach(reservation => {
+            currentReservations.forEach(reservation => {
+                const car = reservation.carDTO ? 
+                    `${reservation.carDTO.mark || 'Nieznane'} ${reservation.carDTO.model || ''}`.trim() : 'Brak danych';
                 tableHTML += `
                     <tr>
-                        <td>${reservation.id}</td>
-                        <td>${reservation.carDTO.make} ${reservation.carDTO.model}</td>
+                        <td>${car}</td>
                         <td>${reservation.reservationDate}</td>
                         <td>${reservation.startingDate}</td>
                         <td>${reservation.endDate}</td>
@@ -152,6 +175,25 @@
             `;
 
             reservationsContainer.innerHTML = tableHTML;
+        }
+
+        // Funkcja do ustawienia paginacji
+        function setupPagination() {
+            const totalPages = Math.ceil(reservationsData.length / RESERVATIONS_PER_PAGE);
+            const paginationContainer = document.getElementById("pagination");
+            paginationContainer.innerHTML = "";
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement("button");
+                button.textContent = i;
+                button.disabled = i === currentPage;
+                button.onclick = () => {
+                    currentPage = i;
+                    displayReservations();
+                    setupPagination();
+                };
+                paginationContainer.appendChild(button);
+            }
         }
 
         // Wywołanie funkcji po załadowaniu strony

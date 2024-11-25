@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <style>
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .selected-dates {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div id="wrapper">
@@ -14,7 +25,7 @@
         <header id="header">
             <div class="inner">
                 <a href="index.html" class="logo">
-                    <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Samochód</span>
+                    <span class="symbol"><img src="images/icon.png" alt="" /></span><span class="title">Dane samochodu</span>
                 </a>
                 <nav>
                     <ul>
@@ -30,22 +41,25 @@
             <ul id="menu-list"></ul>
         </nav>
 
-        <!-- Informacje o samochodzie -->
-        <div id="register">    
-            <div id="car-info">
-                <h2>Informacje o samochodzie</h2>
-                <div id="car-details">
-                    Ładowanie danych samochodu...
-                </div>
-            </div>
-        </div>
+        <!-- Main Content -->
+        <div id="main">
+            <div class="inner">
+                <section>
+                    <!-- Informacje o samochodzie -->
+                    <div id="car-info">
+                        <div id="car-details">Ładowanie danych samochodu...</div>
+                    </div>
 
-        <!-- Kalendarz -->
-        <div>
-            <h2>Wybierz przedział dat</h2>
-            <input type="text" id="datePicker" placeholder="Wybierz daty">
-            <button id="printDates">Wypisz daty na konsolę</button>
-            <button id="submitReservation">Wyślij rezerwację</button>
+                    <!-- Kalendarz -->
+                    <div>
+                        <h2>Wybierz przedział dat</h2>
+                        <input type="text" id="datePicker" placeholder="Wybierz daty">
+                        <div id="selected-dates" class="selected-dates"></div>
+                        <button id="submitReservation">Wyślij rezerwację</button>
+                        <div id="reservation-error" class="error"></div>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
 
@@ -70,11 +84,10 @@
             })
             .then(data => {
                 const carDetails = `
-                    <p><strong>ID:</strong> ${data.id}</p>
                     <p><strong>Marka:</strong> ${data.mark}</p>
                     <p><strong>Model:</strong> ${data.model}</p>
                     <p><strong>Numer rejestracyjny:</strong> ${data.numberPlate}</p>
-                    <p><strong>Cena:</strong> ${data.price} PLN</p>
+                    <p><strong>Cena:</strong> ${data.price} PLN za dzień</p>
                     <p><strong>Opis:</strong> ${data.description}</p>
                     <div><strong>Zdjęcia:</strong></div>
                     ${data.imageUuids.map(uuid => `
@@ -137,22 +150,39 @@
                 dateFormat: "Y-m-d",
                 minDate: "today",
                 inline: true,
+                onChange: function (selectedDates) {
+                    const selectedDatesDiv = document.getElementById("selected-dates");
+                    if (selectedDates.length === 2) {
+                        selectedDatesDiv.textContent = `Wybrano daty: od ${formatDate(selectedDates[0])} do ${formatDate(selectedDates[1])}`;
+                    } else {
+                        selectedDatesDiv.textContent = "";
+                    }
+                }
             });
 
             refreshCalendar(); // Inicjalizacja zablokowanych dat
 
             document.getElementById("submitReservation").addEventListener("click", function () {
                 const selectedDates = datePicker.selectedDates;
+                const errorDiv = document.getElementById("reservation-error");
+                errorDiv.textContent = ""; // Wyczyść poprzednie błędy
+                
+                const userId = localStorage.getItem("userId");
+
+                if (!userId) {
+                    errorDiv.textContent = "Użytkownik niezalogowany.";
+                    return;
+                }
 
                 if (selectedDates.length !== 2) {
-                    alert("Wybierz pełny przedział dat.");
+                    errorDiv.textContent = "Wybierz pełny przedział dat.";
                     return;
                 }
 
                 const startingDate = formatDate(selectedDates[0]);
                 const endDate = formatDate(selectedDates[1]);
                 const reservationDate = formatDate(new Date());
-                const userId = localStorage.getItem("userId");
+
 
                 const reservationRequest = {
                     userId: userId,
@@ -173,22 +203,17 @@
                 .then(response => {
                     if (!response.ok) {
                         return response.text().then(text => {
-                            throw new Error(`HTTP ${response.status}: ${text}`);
+                            throw new Error(text);
                         });
                     }
-                    // Sprawdzenie formatu odpowiedzi
-                    if (response.headers.get("content-type")?.includes("application/json")) {
-                        return response.json();
-                    } else {
-                        return response.text();
-                    }
+                    return response.json();
                 })
                 .then(() => {
                     alert("Rezerwacja została pomyślnie dodana.");
                     refreshCalendar(); // Odświeżenie kalendarza po rezerwacji
                 })
                 .catch(error => {
-                    alert(`Wystąpił błąd podczas dodawania rezerwacji: ${error.message}`);
+                    errorDiv.textContent = `Błąd: ${error.message}`;
                 });
             });
 
