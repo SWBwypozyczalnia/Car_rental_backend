@@ -185,6 +185,7 @@
                     document.getElementById("mainImage").src = `${API_BASE_URL}/api/cars/images/${data.id}`;
                 })
                 .catch(err => console.error(err));
+                refreshCalendar();
         }
 
         // Obsługa rezerwacji
