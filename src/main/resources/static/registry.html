@@ -1,130 +1,160 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="pl">
 <head>
     <title>Rejestracja</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
-    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <div id="wrapper">
-
-				<!-- Header -->
-                <header id="header">
-                    <div class="inner">
-                        <!-- Logo -->
-                            <a href="index.html" class="logo">
-                                <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Rejestracja</span>
-                            </a>
-
-                        <!-- Nav -->
-                            <nav>
-                                <ul>
-                                    <li><a href="#menu">Menu</a></li>
-                                </ul>
-                            </nav>
-                    </div>
-                </header>
-
-            <!-- Menu -->
-                <nav id="menu">
-                    <h2>Menu</h2>
-                    <ul id="menu-list"></ul>
-                </nav>
-
-
-        <!-- Formularz rejestracji -->
-        <div id="register-wrapper">
-            <h2>Rejestracja</h2>
-            <label for="firstName">Imię:</label>
-            <input type="text" id="firstName" required>
-            <br>
-
-            <label for="lastName">Nazwisko:</label>
-            <input type="text" id="lastName" required>
-            <br>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" required>
-            <br>
-
-            <label for="phoneNumber">Numer telefonu:</label>
-            <input type="tel" id="phoneNumber" required>
-            <br>
-
-            <label for="password">Hasło:</label>
-            <input type="password" id="password" required>
-            <br>
-
-            <label for="repPassword">Powtórz hasło:</label>
-            <input type="password" id="repPassword" required>
-            <br>
-
-            <button id="register-button">Zarejestruj się</button>
+<div id="wrapper">
+    <!-- Header -->
+    <header id="header">
+        <div class="inner">
+            <a href="index.html" class="logo">
+                <span class="symbol"><img src="images/logo.svg" alt="" /></span>
+                <span class="title">Wypożyczalnia samochodów</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="#menu">Menu</a></li>
+                </ul>
+            </nav>
         </div>
-    </div>
+    </header>
 
-    <script src="config.js"></script>
-    <script>
-        document.getElementById("register-button").addEventListener("click", function() {
-            // Pobieranie wartości z pól tekstowych
-            const firstName = document.getElementById("firstName").value;
-            const lastName = document.getElementById("lastName").value;
-            const email = document.getElementById("email").value;
-            const phoneNumber = document.getElementById("phoneNumber").value;
-            const password = document.getElementById("password").value;
-            const repPassword = document.getElementById("repPassword").value;
+    <!-- Menu -->
+    <nav id="menu">
+        <h2>Menu</h2>
+        <ul id="menu-list"></ul>
+    </nav>
 
-            // Sprawdzanie, czy wszystkie pola są wypełnione
-            if (!firstName || !lastName || !email || !phoneNumber || !password || !repPassword) {
-                alert("Proszę uzupełnić wszystkie pola.");
-                return;
-            }
+    <h2>Rejestracja</h2>
+    <label for="firstName">Imię:</label>
+    <input type="text" id="firstName" required>
 
-            // Tworzenie obiektu z danymi rejestracyjnymi
-            const registrationData = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                phoneNumber: phoneNumber,
-                password: password,
-                repPassword: repPassword
-            };
+    <label for="lastName">Nazwisko:</label>
+    <input type="text" id="lastName" required>
 
-            // Wysyłanie żądania POST do endpointu rejestracji
-            fetch(`${API_BASE_URL}/users/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(registrationData)
-            })
+    <label for="email">Email:</label>
+    <input type="email" id="email" required>
+
+    <label for="phoneNumber">Numer telefonu:</label>
+    <input type="tel" id="phoneNumber" required>
+
+    <label for="password">Hasło:</label>
+    <input type="password" id="password" required>
+
+    <label for="repPassword">Powtórz hasło:</label>
+    <input type="password" id="repPassword" required>
+
+    <button id="register-button">Zarejestruj się</button>
+</div>
+
+<!-- Skrypty -->
+<script src="menuHandler.js"></script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="config.js"></script>
+<script>
+    document.getElementById("register-button").addEventListener("click", function() {
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const email = document.getElementById("email").value;
+        const phoneNumber = document.getElementById("phoneNumber").value;
+        const password = document.getElementById("password").value;
+        const repPassword = document.getElementById("repPassword").value;
+
+        if (!firstName || !lastName || !email || !phoneNumber || !password || !repPassword) {
+            alert("Proszę uzupełnić wszystkie pola.");
+            return;
+        }
+
+        const registrationData = {
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            password,
+            repPassword
+        };
+
+        fetch(`${API_BASE_URL}/users/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(registrationData)
+        })
             .then(response => {
                 if (response.ok) {
-                    return response.text();
+                    alert("Rejestracja zakończona sukcesem!");
+                    window.location.href = "login.html";
                 } else {
                     return response.text().then(text => { throw new Error(text); });
                 }
             })
-            .then(data => {
-                // Rejestracja udana
-                alert("Rejestracja zakończona sukcesem: " + data);
-                window.location.href = "login.html"; // Przekierowanie na stronę logowania
-            })
             .catch(error => {
-                console.error("Registration error:", error);
                 alert("Błąd rejestracji: " + error.message);
             });
-        });
-    </script>
-
-    <script src="menuHandler.js"></script>
-
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+    });
+</script>
 </body>
 </html>
