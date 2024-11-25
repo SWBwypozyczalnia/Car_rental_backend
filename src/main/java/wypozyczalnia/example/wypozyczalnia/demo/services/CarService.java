@@ -1,5 +1,6 @@
 package wypozyczalnia.example.wypozyczalnia.demo.services;
 
+import com.google.cloud.storage.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -71,19 +72,38 @@ public class CarService {
 
         List <CarImages> carImagesList = new ArrayList < > ();
         carRepository.save(car);
+
+
         if (images != null && !images.isEmpty()) {
+            Storage storage = StorageOptions.getDefaultInstance().getService();
+            String bucketName = "car-images-bucket-132";
             boolean isFirstImage = true;
             for (MultipartFile file: images) {
                 try {
-                    String baseResourcesPath = Paths.get("src", "main", "resources", "images", car.getId()).toString();
-                    Files.createDirectories(Paths.get(baseResourcesPath));
-                    String imagePath = baseResourcesPath + "/" + file.getOriginalFilename();
+                    //String baseResourcesPath = Paths.get("src", "main", "resources", "images", car.getId()).toString();
+                    //Files.createDirectories(Paths.get(baseResourcesPath));
+                    //String imagePath = baseResourcesPath + "/" + file.getOriginalFilename();
 
-                    Files.copy(file.getInputStream(), Paths.get(imagePath), StandardCopyOption.REPLACE_EXISTING);
+                    String objectName = "images/" + car.getId() + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+
+                    //to zapisuje ale do tmp
+                    //String tempDir = System.getProperty("java.io.tmpdir");
+                    //String baseResourcesPath = Paths.get(tempDir, "images", car.getId().toString()).toString();
+                    //Files.createDirectories(Paths.get(baseResourcesPath));
+                    //String imagePath = Paths.get(baseResourcesPath, file.getOriginalFilename()).toString();
+                    //Files.copy(file.getInputStream(), Paths.get(imagePath), StandardCopyOption.REPLACE_EXISTING);
+
+                    // Utwórz BlobId i BlobInfo
+                    BlobId blobId = BlobId.of(bucketName, objectName);
+                    BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(file.getContentType()).build();
+                    // Zapisz plik do Google Cloud Storage
+                    storage.create(blobInfo, file.getBytes());
+
+                    String fileUrl = String.format("https://storage.googleapis.com/%s/%s", bucketName, objectName);
 
                     CarImages carImage = new CarImages();
                     carImage.setCar(car);
-                    carImage.setImagePath(imagePath);
+                    carImage.setImagePath(fileUrl);
                     carImage.setMainPicture(isFirstImage); // Ustawienie mainPicture na true tylko dla pierwszego obrazka
                     isFirstImage = false;
                     carImageRepository.save(carImage);
@@ -162,14 +182,31 @@ public class CarService {
 
             if (mainImageOptional.isPresent()) {
                 CarImages mainImage = mainImageOptional.get();
-                Path imagePath = Path.of(mainImage.getImagePath());
+                String imagePath = mainImage.getImagePath();
                 try {
-                    byte[] imageBytes = Files.readAllBytes(imagePath);
+                    // Pobierz nazwę bucketa i obiekt
+                    String bucketName = "car-images-bucket-132";
+                    String objectName = imagePath.replace(
+                            String.format("https://storage.googleapis.com/%s/", bucketName), ""
+                    );
+
+                    // Inicjalizuj klienta Google Cloud Storage
+                    Storage storage = StorageOptions.getDefaultInstance().getService();
+
+                    // Pobierz dane pliku jako bajty
+                    Blob blob = storage.get(BlobId.of(bucketName, objectName));
+                    if (blob == null) {
+                        return new ResponseEntity<>("Image not found in storage", HttpStatus.NOT_FOUND);
+                    }
+                    byte[] imageBytes = blob.getContent();
+
+                    // Przygotuj odpowiedź z obrazkiem
                     HttpHeaders headers = new HttpHeaders();
-                    headers.setContentType(MediaType.IMAGE_JPEG);
+                    headers.setContentType(MediaType.parseMediaType(blob.getContentType()));
                     return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-                } catch (IOException e) {
-                    return new ResponseEntity<>("Error reading image file", HttpStatus.INTERNAL_SERVER_ERROR);
+                } catch (Exception e) {
+                    return new ResponseEntity<>("Error reading image from storage: " + e.getMessage(),
+                            HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
                 return new ResponseEntity<>("Main image not found", HttpStatus.NOT_FOUND);

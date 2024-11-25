@@ -1,0 +1,264 @@
+<!DOCTYPE HTML>
+<html lang="pl">
+<head>
+    <title>Panel Admina</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        #wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            display: none;
+        }
+
+        .table-container.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 5px;
+        }
+
+        .pagination button {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <header id="header">
+        <div class="inner">
+            <!-- Nav -->
+            <a href="index.html" class="logo">
+                <span class="symbol"><img src="images/icon.png" alt="" /></span><span class="title">Panel admina</span>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="#menu">Menu</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Menu -->
+    <nav id="menu">
+        <h2>Menu</h2>
+        <ul id="menu-list"></ul>
+    </nav>
+
+    <div class="nav-buttons">
+        <button id="reservationsBtn">Rezerwacje</button>
+        <button id="usersBtn">Użytkownicy</button>
+        <button id="carsBtn">Samochody</button>
+    </div>
+
+    <div id="reservationsTable" class="table-container">
+        <h2>Rezerwacje</h2>
+        <table id="reservations">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Użytkownik</th>
+                    <th>Samochód</th>
+                    <th>Data rozpoczęcia</th>
+                    <th>Data zakończenia</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="pagination" id="reservationsPagination"></div>
+    </div>
+
+    <div id="usersTable" class="table-container">
+        <h2>Użytkownicy</h2>
+        <table id="users">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imię</th>
+                    <th>Nazwisko</th>
+                    <th>Email</th>
+                    <th>Telefon</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="pagination" id="usersPagination"></div>
+    </div>
+
+    <div id="carsTable" class="table-container">
+        <h2>Samochody</h2>
+        <table id="cars">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Marka</th>
+                    <th>Model</th>
+                    <th>Numer rejestracyjny</th>
+                    <th>Cena</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="pagination" id="carsPagination"></div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+    // Fetch and render data with pagination
+    function fetchData(endpoint, renderFunction, paginationContainer) {
+    fetch(`${API_BASE_URL}/api/${endpoint}`, { credentials: 'include' })
+        .then(response => response.json())
+        .then(data => {
+            renderPaginatedData(data, renderFunction, paginationContainer);
+        })
+        .catch(error => console.error("Błąd podczas pobierania danych:", error));
+}
+
+function renderPaginatedData(data, renderFunction, paginationContainer) {
+    const rowsPerPage = 10; // Liczba wierszy na stronę
+    let currentPage = 0;
+
+    function renderPage(page) {
+        const start = page * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = data.slice(start, end); // Pobierz dane dla bieżącej strony
+        renderFunction(pageData);
+
+        // Renderowanie przycisków paginacji
+        paginationContainer.innerHTML = '';
+        const totalPages = Math.ceil(data.length / rowsPerPage);
+        for (let i = 0; i < totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i + 1;
+            btn.disabled = i === page;
+            btn.addEventListener('click', () => {
+                currentPage = i;
+                renderPage(currentPage);
+            });
+            paginationContainer.appendChild(btn);
+        }
+    }
+
+    // Renderuj pierwszą stronę
+    renderPage(currentPage);
+}
+
+// Renderowanie danych rezerwacji
+function renderReservations(data) {
+    const tableBody = document.querySelector('#reservations tbody');
+    tableBody.innerHTML = '';
+    data.forEach(reservation => {
+        const row = `
+            <tr>
+                <td>${reservation.id}</td>
+                <td>${reservation.userDTO.firstname} ${reservation.userDTO.lastname}</td>
+                <td>${reservation.carDTO.mark} ${reservation.carDTO.model}</td>
+                <td>${reservation.startingDate}</td>
+                <td>${reservation.endDate}</td>
+            </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+// Analogicznie dla użytkowników i samochodów
+function renderUsers(data) {
+    const tableBody = document.querySelector('#users tbody');
+    tableBody.innerHTML = '';
+    data.forEach(user => {
+        const row = `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.firstname}</td>
+                <td>${user.lastname}</td>
+                <td>${user.email}</td>
+                <td>${user.phoneNumber}</td>
+            </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+function renderCars(data) {
+    const tableBody = document.querySelector('#cars tbody');
+    tableBody.innerHTML = '';
+    data.forEach(car => {
+        const row = `
+            <tr>
+                <td>${car.id}</td>
+                <td>${car.mark}</td>
+                <td>${car.model}</td>
+                <td>${car.numberPlate}</td>
+                <td>${car.price}</td>
+            </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+// Przełączanie tabel
+function showTable(tableId) {
+    document.querySelectorAll('.table-container').forEach(container => container.classList.remove('active'));
+    document.getElementById(tableId).classList.add('active');
+}
+
+document.getElementById('reservationsBtn').addEventListener('click', () => {
+    showTable('reservationsTable');
+    fetchData('reservation/reservationList', renderReservations, document.getElementById('reservationsPagination'));
+});
+
+document.getElementById('usersBtn').addEventListener('click', () => {
+    showTable('usersTable');
+    fetchData('users/userList', renderUsers, document.getElementById('usersPagination'));
+});
+
+document.getElementById('carsBtn').addEventListener('click', () => {
+    showTable('carsTable');
+    fetchData('cars/carList', renderCars, document.getElementById('carsPagination'));
+});
+
+// Domyślny widok
+showTable('reservationsTable');
+fetchData('reservation/reservationList', renderReservations, document.getElementById('reservationsPagination'));
+</script>
+<script src="menuHandler.js"></script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
