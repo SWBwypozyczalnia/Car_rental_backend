@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("Dodaję link do strony samochodów.");
     const carsPageLink = document.createElement("li");
-    carsPageLink.innerHTML = '<a href="car.html">Samochody</a>';
+    carsPageLink.innerHTML = '<a href="carList.html">Nasza flota</a>';
     menuList.appendChild(carsPageLink);
 
     console.log("Wysłanie zapytania na /auth/check...");
@@ -38,8 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Dodaję przycisk Wyloguj...");
             const logoutButton = document.createElement("li");
-            logoutButton.innerHTML = '<button id="logout-button">Wyloguj</button>';
+            logoutButton.innerHTML = '<button id="logout-button" class="btn-primary">Wyloguj</button>';
             menuList.appendChild(logoutButton);
+
 
             console.log("Dodano przycisk Wyloguj. Ustawianie event listenera...");
             document
