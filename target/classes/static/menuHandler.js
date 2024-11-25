@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
     mainPageLink.innerHTML = '<a href="index.html">Strona główna</a>';
     menuList.appendChild(mainPageLink);
 
+    console.log("Dodaję link do strony samochodów.");
+    const carsPageLink = document.createElement("li");
+    carsPageLink.innerHTML = '<a href="car.html">Samochody</a>';
+    menuList.appendChild(carsPageLink);
+
     console.log("Wysłanie zapytania na /auth/check...");
     fetch(`http://localhost:8080/api/auth/check`, {
         method: "GET",

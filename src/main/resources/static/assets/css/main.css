@@ -2586,22 +2586,25 @@ input, select, textarea {
 			margin: 2.5em 0 0 2.5em;
 		}
 
-			.tiles article > .image {
-				-moz-transition: -moz-transform 0.5s ease;
-				-webkit-transition: -webkit-transform 0.5s ease;
-				-ms-transition: -ms-transform 0.5s ease;
-				transition: transform 0.5s ease;
-				position: relative;
-				display: block;
-				width: 100%;
-				border-radius: 4px;
-				overflow: hidden;
-			}
+.tiles article > .image {
+	position: relative;
+	display: block;
+	width: 100%;
+	border-radius: 4px;
+	overflow: hidden;
+	height: 200px; /* Ustalona wysokość dla wszystkich obrazów */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
 
-				.tiles article > .image img {
-					display: block;
-					width: 100%;
-				}
+.tiles article > .image img {
+	display: block;
+	width: auto;
+	height: 100%;
+	object-fit: cover; /* Przycinanie obrazu, aby wypełniał dostępny obszar */
+	object-position: center; /* Środek obrazu będzie widoczny */
+}
 
 				.tiles article > .image:before {
 					pointer-events: none;
@@ -2616,9 +2619,8 @@ input, select, textarea {
 					left: 0;
 					width: 100%;
 					height: 100%;
-					opacity: 1.0;
+					opacity: 0.3;
 					z-index: 1;
-					opacity: 0.8;
 				}
 
 				.tiles article > .image:after {
@@ -2705,29 +2707,29 @@ input, select, textarea {
 						margin-bottom: 0;
 					}
 
-			.tiles article.style1 > .image:before {
-				background-color: #f2849e;
-			}
+.tiles article.style1 > .image:before {
+	background-color: rgba(0, 0, 0, 0.4); /* Lekko przyciemniony efekt */
+}
 
-			.tiles article.style2 > .image:before {
-				background-color: #7ecaf6;
-			}
+.tiles article.style2 > .image:before {
+	background-color: rgba(0, 0, 0, 0.4); /* Lekko przyciemniony efekt */
+}
 
-			.tiles article.style3 > .image:before {
-				background-color: #7bd0c1;
-			}
+.tiles article.style3 > .image:before {
+	background-color: rgba(0, 0, 0, 0.4); /* Lekko przyciemniony efekt */
+}
 
-			.tiles article.style4 > .image:before {
-				background-color: #c75b9b;
-			}
+.tiles article.style4 > .image:before {
+	background-color: rgba(0, 0, 0, 0.4); /* Lekko przyciemniony efekt */
+}
 
-			.tiles article.style5 > .image:before {
-				background-color: #ae85ca;
-			}
+.tiles article.style5 > .image:before {
+	background-color: rgba(0, 0, 0, 0.4); /* Lekko przyciemniony efekt */
+}
 
-			.tiles article.style6 > .image:before {
-				background-color: #8499e7;
-			}
+.tiles article.style6 > .image:before {
+	background-color: rgba(0, 0, 0, 0.4); /* Lekko przyciemniony efekt */
+}
 
 			body:not(.is-touch) .tiles article:hover > .image {
 				-moz-transform: scale(1.1);
@@ -3327,3 +3329,142 @@ input, select, textarea {
 			}
 
 		}
+
+
+/*REJESTRACJA STRONA TUTAJ PONIZEJ TYLKO*/
+/* Styl dla formularza rejestracji */
+#register-wrapper {
+	font-family: "Source Sans Pro", Arial, sans-serif;
+	max-width: 500px;
+	margin: 50px auto; /* Wyśrodkowanie z marginesem od góry */
+	padding: 20px;
+	background: #ffffff;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#register-wrapper h2 {
+	text-align: center;
+	font-size: 1.8em;
+	color: #585858;
+	margin-bottom: 20px;
+	letter-spacing: 0.05em;
+}
+
+#register-wrapper label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+	color: #333;
+}
+
+#register-wrapper input[type="text"],
+#register-wrapper input[type="email"],
+#register-wrapper input[type="tel"],
+#register-wrapper input[type="password"] {
+	width: 100%;
+	padding: 10px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-bottom: 15px;
+	box-sizing: border-box;
+}
+
+#register-wrapper input:focus {
+	border-color: #007bff;
+	outline: none;
+	box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+/* Styl dla przycisku */
+#register-wrapper button {
+	display: block; /* Sprawia, że przycisk zajmuje całą szerokość kontenera */
+	width: 100%;
+	text-align: center; /* Wyrównanie tekstu na środku */
+	padding: 12px; /* Większe odstępy w pionie */
+	font-size: 16px; /* Zwiększenie rozmiaru czcionki */
+	font-weight: bold; /* Tekst pogrubiony */
+	background-color: #4da6ff; /* Jaśniejszy niebieski */
+	color: white; /* Kolor tekstu biały */
+	border: none; /* Usuń domyślną obwódkę */
+	border-radius: 5px; /* Zaokrąglone rogi */
+	cursor: pointer; /* Kursor jako wskazówka, że element jest klikalny */
+	margin-top: 10px;
+	text-transform: uppercase; /* Duże litery */
+	letter-spacing: 0.05em; /* Odstępy między literami */
+}
+
+/* Efekt hover */
+#register-wrapper button:hover {
+	background-color: #66b3ff; /* Jeszcze jaśniejszy niebieski podczas najechania */
+}
+
+/* Dostosowanie aktywnego stanu */
+#register-wrapper button:active {
+	background-color: #3385cc; /* Ciemniejszy niebieski podczas kliknięcia */
+}
+
+
+#register-wrapper .form-group {
+	margin-bottom: 15px;
+}
+
+
+/*LOGOWANIE*/
+#login-wrapper {
+	max-width: 400px;
+	margin: 0 auto;
+	padding: 20px;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	background-color: #f9f9f9;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#login-wrapper h2 {
+	font-size: 1.5rem;
+	text-align: center;
+	margin-bottom: 20px;
+	text-transform: uppercase;
+}
+
+.form-container .form-group {
+	margin-bottom: 15px;
+}
+
+.form-container .form-group label {
+	display: block;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+
+.form-container .form-group input {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 1rem;
+}
+
+#login-button {
+	display: block;
+	width: 100%;
+	padding: 10px;
+	background-color: #007bff;
+	color: white;
+	font-size: 1rem;
+	font-weight: bold;
+	text-transform: uppercase;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+#login-button:hover {
+	background-color: #0056b3;
+}
+
+
+/*PRZYCISK WYLOGOWYWANIA*/

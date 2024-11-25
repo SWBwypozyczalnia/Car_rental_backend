@@ -1,124 +1,101 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Login</title>
+    <title>Logowanie</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
     <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 </head>
 <body class="is-preload">
-    <!-- Wrapper -->
-    <div id="wrapper">
-        <!-- Header -->
-        <header id="header">
-            <div class="inner">
-                <!-- Logo -->
-                <a href="index.html" class="logo">
-                    <span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Phantom</span>
-                </a>
+<div id="wrapper">
+    <!-- Header -->
+    <header id="header">
+        <div class="inner">
+            <!-- Logo -->
+            <a href="index.html" class="logo">
+                <span class="symbol"><img src="images/logo.svg" alt="" /></span>
+                <span class="title">Logowanie</span>
+            </a>
 
-                <!-- Nav -->
-                <nav>
-                    <ul>
-                        <li><a href="#menu">Menu</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
-
-        <!-- Menu -->
-        <nav id="menu">
-            <h2>Menu</h2>
-            <ul id="menu-list"></ul>
-        </nav>
-
-
-        <!-- Formularz logowania -->
-        <div id="main">
-            <div class="inner">
-                <section>
-                    <h2>Logowanie</h2>
-                    <!-- Pola formularza -->
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" required>
-                    <br>
-                    <label for="password">Hasło:</label>
-                    <input type="password" id="password" required>
-                    <br>
-                    <button id="login-button">Zaloguj</button>
-                </section>
-            </div>
+            <!-- Nav -->
+            <nav>
+                <ul>
+                    <li><a href="#menu">Menu</a></li>
+                </ul>
+            </nav>
         </div>
+    </header>
+
+    <!-- Menu -->
+    <nav id="menu">
+        <h2>Menu</h2>
+        <ul id="menu-list"></ul>
+    </nav>
+
+    <!-- Login Form -->
+    <div id="login-wrapper" class="form-container">
+        <h2 class="form-title">Logowanie</h2>
+        <form>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło:</label>
+                <input type="password" id="password" required />
+            </div>
+            <button id="login-button" class="btn-primary">Zaloguj</button>
+        </form>
     </div>
+</div>
 
+<script src="config.js"></script>
+<script>
+    document.getElementById("login-button").addEventListener("click", function (event) {
+        event.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
 
-    <!-- Skrypt do obsługi logowania -->
-    <script src="config.js"></script>
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Skrypt logowania
-        document.getElementById("login-button").addEventListener("click", function() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+        if (!email || !password) {
+            alert("Wprowadź email i hasło.");
+            return;
+        }
 
-            if (!email || !password) {
-                alert("Wprowadź email i hasło");
-                return;
-            }
+        const loginData = { email, password };
 
-            const loginData = {
-                email: email,
-                password: password
-            };
-
-            fetch(`${API_BASE_URL}/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(loginData),
-                credentials: "include"
+        fetch(`${API_BASE_URL}/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+            credentials: "include",
+        })
+            .then((response) => {
+                if (response.ok) return response.json();
+                return response.text().then((text) => {
+                    throw new Error(text);
+                });
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    return response.text().then(text => { throw new Error(text); });
-                }
-            })
-            .then(data => {
-                console.log("Login successful:", data);
-                alert("Zalogowano pomyślnie");
+            .then((data) => {
+                alert("Zalogowano pomyślnie.");
                 localStorage.setItem("userId", data.userId);
                 localStorage.setItem("isAdmin", data.admin);
                 window.location.href = "index.html";
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Login error:", error);
                 alert(error.message);
             });
-        });
     });
-    </script>
-    
-    <script>
-        // Ładowanie menu z zewnętrznego pliku HTML
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('menu.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('menu-placeholder').innerHTML = data;
-                });
-        });
-    </script>
+</script>
 
-    <script src="menuHandler.js"></script>
-
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+<script src="menuHandler.js"></script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>
