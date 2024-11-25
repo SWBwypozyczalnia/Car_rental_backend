@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Login</title>
+    <title>Logowanie</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
@@ -15,48 +15,47 @@
     </style>
 </head>
 <body class="is-preload">
-    <!-- Wrapper -->
-    <div id="wrapper">
-        <!-- Header -->
-        <header id="header">
-            <div class="inner">
-                <!-- Nav -->
-                <a href="index.html" class="logo">
-                    <span class="symbol"><img src="images/icon.png" alt="" /></span><span class="title">Logowanie</span>
-                </a>
-                <nav>
-                    <ul>
-                        <li><a href="#menu">Menu</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
+<div id="wrapper">
+    <!-- Header -->
+    <header id="header">
+        <div class="inner">
+            <!-- Logo -->
+            <a href="index.html" class="logo">
+                <span class="symbol"><img src="images/logo.svg" alt="" /></span>
+                <span class="title">Logowanie</span>
+            </a>
 
-        <!-- Menu -->
-        <nav id="menu">
-            <h2>Menu</h2>
-            <ul id="menu-list"></ul>
-        </nav>
-
-        <!-- Formularz logowania -->
-        <div id="main">
-            <div class="inner">
-                <section>
-                    <!-- Pola formularza -->
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" required>
-                    <div id="email-error" class="error"></div>
-                    <br>
-                    <label for="password">Hasło:</label>
-                    <input type="password" id="password" required>
-                    <div id="password-error" class="error"></div>
-                    <br>
-                    <div id="server-error" class="error"></div>
-                    <button id="login-button">Zaloguj</button>
-                </section>
-            </div>
+            <!-- Nav -->
+            <nav>
+                <ul>
+                    <li><a href="#menu">Menu</a></li>
+                </ul>
+            </nav>
         </div>
+    </header>
+
+    <!-- Menu -->
+    <nav id="menu">
+        <h2>Menu</h2>
+        <ul id="menu-list"></ul>
+    </nav>
+
+    <!-- Login Form -->
+    <div id="login-wrapper" class="form-container">
+        <h2 class="form-title">Logowanie</h2>
+        <form>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło:</label>
+                <input type="password" id="password" required />
+            </div>
+            <button id="login-button" class="btn-primary">Zaloguj</button>
+        </form>
     </div>
+</div>
 
     <!-- Skrypt do obsługi logowania -->
     <script src="config.js"></script>
@@ -112,14 +111,13 @@
                     return response.text().then(text => { throw new Error(text); });
                 }
             })
-            .then(data => {
-                console.log("Login successful:", data);
-                alert("Zalogowano pomyślnie");
+            .then((data) => {
+                alert("Zalogowano pomyślnie.");
                 localStorage.setItem("userId", data.userId);
                 localStorage.setItem("isAdmin", data.admin);
                 window.location.href = "index.html";
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Login error:", error);
                 serverError.textContent = error.message;
             });
