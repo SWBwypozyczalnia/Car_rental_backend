@@ -149,6 +149,7 @@
                 const result = await response.json();
                 alert("Zalogowano pomyślnie!");
                 localStorage.setItem("userId", result.userId);
+                localStorage.setItem("isAdmin", result.admin);
                 window.location.href = "index.html";
             } else {
                 const error = await response.text();

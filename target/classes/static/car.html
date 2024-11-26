@@ -96,7 +96,6 @@
         <div class="car-info">
             <h2>Informacje o samochodzie</h2>
             <div id="car-details">
-                <p><strong>ID:</strong> <span id="car-id"></span></p>
                 <p><strong>Marka:</strong> <span id="car-mark"></span></p>
                 <p><strong>Model:</strong> <span id="car-model"></span></p>
                 <p><strong>Numer rejestracyjny:</strong> <span id="car-plate"></span></p>
@@ -176,7 +175,6 @@
             fetch(`${API_BASE_URL}/api/cars/${carId}`, { method: 'GET', credentials: 'include' })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("car-id").textContent = data.id;
                     document.getElementById("car-mark").textContent = data.mark;
                     document.getElementById("car-model").textContent = data.model;
                     document.getElementById("car-plate").textContent = data.numberPlate;
