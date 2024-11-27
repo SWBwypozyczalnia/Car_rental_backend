@@ -194,41 +194,46 @@
             }
 
             let tableHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Samochód</th>
-                            <th>Data Rezerwacji</th>
-                            <th>Data Rozpoczęcia</th>
-                            <th>Data Zakończenia</th>
-                            <th>Odebrano</th>
-                            <th>Zwrócono</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+        <table>
+            <thead>
+                <tr>
+                    <th>Samochód</th>
+                    <th>Data Rezerwacji</th>
+                    <th>Data Rozpoczęcia</th>
+                    <th>Data Zakończenia</th>
+                    <th>Odebrano</th>
+                    <th>Zwrócono</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
             currentReservations.forEach(reservation => {
-                const car = reservation.carDTO ? 
+                const car = reservation.carDTO ?
                     `${reservation.carDTO.mark || 'Nieznane'} ${reservation.carDTO.model || ''}`.trim() : 'Brak danych';
                 tableHTML += `
-                    <tr>
-                        <td>${car}</td>
-                        <td>${reservation.reservationDate}</td>
-                        <td>${reservation.startingDate}</td>
-                        <td>${reservation.endDate}</td>
-                        <td>${reservation.picked_up ? "Tak" : "Nie"}</td>
-                        <td>${reservation.returned ? "Tak" : "Nie"}</td>
-                    </tr>
-                `;
+            <tr onclick="redirectToReservation('${reservation.id}')" style="cursor: pointer;">
+                <td>${car}</td>
+                <td>${reservation.reservationDate}</td>
+                <td>${reservation.startingDate}</td>
+                <td>${reservation.endDate}</td>
+                <td>${reservation.picked_up ? "Tak" : "Nie"}</td>
+                <td>${reservation.returned ? "Tak" : "Nie"}</td>
+            </tr>
+        `;
             });
 
             tableHTML += `
-                    </tbody>
-                </table>
-            `;
+            </tbody>
+        </table>
+    `;
 
             reservationsContainer.innerHTML = tableHTML;
+        }
+
+        // Funkcja przekierowująca użytkownika do reservations.html z id
+        function redirectToReservation(id) {
+            window.location.href = `reservation.html?id=${id}`;
         }
 
         // Funkcja do ustawienia paginacji

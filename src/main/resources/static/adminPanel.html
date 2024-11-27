@@ -184,15 +184,19 @@ function renderReservations(data) {
     const tableBody = document.querySelector('#reservations tbody');
     tableBody.innerHTML = '';
     data.forEach(reservation => {
-        const row = `
-            <tr>
-                <td>${reservation.id}</td>
-                <td>${reservation.userDTO.firstname} ${reservation.userDTO.lastname}</td>
-                <td>${reservation.carDTO.mark} ${reservation.carDTO.model}</td>
-                <td>${reservation.startingDate}</td>
-                <td>${reservation.endDate}</td>
-            </tr>`;
-        tableBody.innerHTML += row;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${reservation.id}</td>
+            <td>${reservation.userDTO.firstname} ${reservation.userDTO.lastname}</td>
+            <td>${reservation.carDTO.mark} ${reservation.carDTO.model}</td>
+            <td>${reservation.startingDate}</td>
+            <td>${reservation.endDate}</td>
+        `;
+        row.style.cursor = 'pointer'; // Dodanie kursora wskazującego klikalność
+        row.addEventListener('click', () => {
+            window.location.href = `reservation.html?id=${reservation.id}`;
+        });
+        tableBody.appendChild(row);
     });
 }
 
