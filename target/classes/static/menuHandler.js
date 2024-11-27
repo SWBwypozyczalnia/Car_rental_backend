@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
         profileLink.innerHTML = '<a href="user.html">Profil</a>';
         menuList.appendChild(profileLink);
 
-        if(isAdmin) {
+        if(isAdmin==='true') {
             const adminPanelLink = document.createElement("li");
             adminPanelLink.innerHTML = '<a href="adminPanel.html">Panel admina</a>';
             menuList.appendChild(adminPanelLink);
