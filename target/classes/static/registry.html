@@ -158,9 +158,9 @@
             return;
         }
 
-        const registrationData = { firstName, lastName, email, phoneNumber, password };
+        const registrationData = { firstName, lastName, email, phoneNumber, password, repPassword };
 
-        fetch(`${API_BASE_URL}/users/register`, {
+        fetch(`${API_BASE_URL}/api/users/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
