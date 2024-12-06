@@ -257,5 +257,31 @@ public class CarService {
             return new ResponseEntity<>("Car not found", HttpStatus.NOT_FOUND);
         }
     }
+    public ResponseEntity<?> updateCar(String carID, String model, String mark, String numberPlate, Integer price,
+                                       String description) {
+        Optional<Car> carOptional = carRepository.findById(carID);
+        if (carOptional.isPresent()) {
+            Car car = carOptional.get();
 
+            if(price > 1) {
+                car.setPrice(price);
+            }
+            if(!mark.isBlank()) {
+                car.setMark(mark);
+            }
+            if(!model.isBlank()) {
+                car.setModel(model);
+            }
+            if(!numberPlate.isBlank()) {
+                car.setNumberPlate(numberPlate);
+            }
+            if(!description.isBlank()) {
+                car.setDescription(description);
+            }
+            carRepository.save(car);
+            return ResponseEntity.status(HttpStatus.OK).body("Car updated");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car not found");
+        }
+    }
 }

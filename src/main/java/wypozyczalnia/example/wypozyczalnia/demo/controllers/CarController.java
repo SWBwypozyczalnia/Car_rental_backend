@@ -145,4 +145,37 @@ public class CarController {
         return carService.getCarImage(imageId);
     }
 
+    @PatchMapping("/updateCar")
+    public ResponseEntity<?> updateCar(
+            @CookieValue(value = "accessToken", defaultValue = "") String accessToken,
+            @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken,
+            @RequestParam("carID") String carID,
+            @RequestParam("model") String model,
+            @RequestParam("mark") String mark,
+            @RequestParam("numberPlate") String numberPlate,
+            @RequestParam("price") Integer price,
+            @RequestParam("description") String description) {
+
+        ResponseEntity<?> checkAuthorizationResult = tokenService.checkLogged(accessToken, refreshToken);
+        if (!checkAuthorizationResult.getStatusCode().equals(HttpStatus.OK)) {
+            if (!checkAuthorizationResult.getStatusCode().equals(HttpStatus.CREATED)) {
+                return checkAuthorizationResult;
+            } else {
+                accessToken = checkAuthorizationResult.getBody().toString();
+            }
+        }
+
+        if (tokenService.checkIfAdminFromAccessToken(accessToken)) {
+            ResponseEntity<?> response = carService.updateCar(carID, model, mark, numberPlate, price, description);
+
+            if (checkAuthorizationResult.getStatusCode().equals(HttpStatus.CREATED)) {
+                return tokenService.addNewCookieToResponse(accessToken, response);
+            }
+            return response;
+
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+    }
+
 }

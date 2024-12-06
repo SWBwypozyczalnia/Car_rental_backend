@@ -66,6 +66,13 @@
             width: 100%;
         }
 
+        .button-container {
+            display: flex;
+            gap: 10px; /* Odstęp między przyciskami */
+            justify-content: flex-start; /* Opcjonalnie: wyrównanie do lewej */
+            margin-top: 20px; /* Opcjonalnie: odstęp od innych elementów */
+        }
+
     </style>
 </head>
 <body>
@@ -112,10 +119,14 @@
     <div class="reservation-section">
         <h2>Wybierz przedział dat</h2>
         <input type="text" id="datePicker" placeholder="Wybierz daty">
-        <button id="submitReservation">Zarezerwuj</button>
-        <div id="reservation-error" class="error"></div>
+        <div class="button-container">
+            <button id="submitReservation">Zarezerwuj</button>
+            <button id="deleteCarButton">Usuń samochód</button>
+            <button id="updateCarButton">Edytuj samochód</button>
+        </div>
+
     </div>
-</div>
+    </div>
 
 <!-- Skrypty -->
 <script src="config.js"></script>
@@ -126,6 +137,8 @@
         const carId = urlParams.get('id');
         const errorDiv = document.getElementById("reservation-error");
         const userId = localStorage.getItem("userId");
+        const deleteCarButton = document.getElementById("deleteCarButton");
+        const updateCarButton = document.getElementById("updateCarButton");
 
         // Funkcja do odświeżania kalendarza
         function refreshCalendar() {
@@ -164,10 +177,20 @@
             });
         }
 
+        const isAdmin = localStorage.getItem("isAdmin");
+        console.log("Czy użytkownik jest administratorem?", isAdmin);
+
+        if (isAdmin === 'true') {
+            deleteCarButton.style.display = "block"; // Pokaż przycisk
+            updateCarButton.style.display = "block"; // Pokaż przycisk
+        } else {
+            console.log("Użytkownik nie jest administratorem");
+        }
+
         // Inicjalizacja Flatpickr
-        const datePicker = flatpickr("#datePicker", { 
-            mode: "range", 
-            minDate: "today" 
+        const datePicker = flatpickr("#datePicker", {
+            mode: "range",
+            minDate: "today"
         });
 
         // Pobierz szczegóły samochodu
@@ -185,6 +208,39 @@
                 .catch(err => console.error(err));
                 refreshCalendar();
         }
+
+        // Obsługa przycisku "Edytuj samochód"
+        updateCarButton.addEventListener("click", function () {
+            if (carId) {
+                window.location.href = `carUpdate.html?id=${carId}`;
+            } else {
+                alert("ID samochodu nie zostało znalezione.");
+            }
+        });
+
+        // Usuwanie samochodu po potwierdzeniu
+        deleteCarButton.addEventListener("click", function () {
+            if (confirm("Czy na pewno chcesz usunąć ten samochód?")) {
+                fetch(`${API_BASE_URL}/api/cars/delete/${carId}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(text);
+                            });
+                        }
+                        return response.text();
+                    })
+                    .then(message => {
+                        alert(message);
+                        window.location.href = "index.html";
+                    })
+                    .catch(error => {
+                        alert(`Błąd: ${error.message}`);
+                    });
+            }
 
         // Obsługa rezerwacji
         document.getElementById("submitReservation").addEventListener("click", function () {
@@ -243,7 +299,8 @@
                     errorDiv.textContent = `Błąd: ${error.message}`;
                 });
         });
-    });
+    });});
+
 </script>
 
 <script src="menuHandler.js"></script>

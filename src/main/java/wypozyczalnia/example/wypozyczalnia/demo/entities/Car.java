@@ -17,10 +17,10 @@ public class Car {
     @Column(name = "id", updatable = false)
     private String id;
 
-    @Column(name = "model", nullable = false, updatable = false)
+    @Column(name = "model", nullable = false)
     private String model;
 
-    @Column (name ="mark", nullable = false, updatable = false)
+    @Column (name ="mark", nullable = false)
     private String mark;
 
     @Column (name ="number_plate", nullable = false, unique = true)
