@@ -1,1 +1,1 @@
-const API_BASE_URL = "https://swb-wypozyczalnia.lm.r.appspot.com";
+const API_BASE_URL = "http://localhost:8080";
