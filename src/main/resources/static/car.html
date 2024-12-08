@@ -124,7 +124,7 @@
             <button id="deleteCarButton">Usuń samochód</button>
             <button id="updateCarButton">Edytuj samochód</button>
         </div>
-
+        <div id="reservation-error" class="error"></div>
     </div>
     </div>
 
@@ -218,33 +218,10 @@
             }
         });
 
-        // Usuwanie samochodu po potwierdzeniu
-        deleteCarButton.addEventListener("click", function () {
-            if (confirm("Czy na pewno chcesz usunąć ten samochód?")) {
-                fetch(`${API_BASE_URL}/api/cars/delete/${carId}`, {
-                    method: "DELETE",
-                    credentials: "include"
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.text().then(text => {
-                                throw new Error(text);
-                            });
-                        }
-                        return response.text();
-                    })
-                    .then(message => {
-                        alert(message);
-                        window.location.href = "index.html";
-                    })
-                    .catch(error => {
-                        alert(`Błąd: ${error.message}`);
-                    });
-            }
-
         // Obsługa rezerwacji
         document.getElementById("submitReservation").addEventListener("click", function () {
             const selectedDates = datePicker.selectedDates;
+            console.log("Przycisk rezerwacji wcistniety");
             errorDiv.textContent = ""; // Wyczyść poprzednie błędy
             if (!userId) {
                 errorDiv.textContent = "Użytkownik niezalogowany.";
@@ -299,6 +276,31 @@
                     errorDiv.textContent = `Błąd: ${error.message}`;
                 });
         });
+
+        // Usuwanie samochodu po potwierdzeniu
+        deleteCarButton.addEventListener("click", function () {
+            if (confirm("Czy na pewno chcesz usunąć ten samochód?")) {
+                fetch(`${API_BASE_URL}/api/cars/delete/${carId}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(text);
+                            });
+                        }
+                        return response.text();
+                    })
+                    .then(message => {
+                        alert(message);
+                        window.location.href = "index.html";
+                    })
+                    .catch(error => {
+                        alert(`Błąd: ${error.message}`);
+                    });
+            }
+
     });});
 
 </script>
