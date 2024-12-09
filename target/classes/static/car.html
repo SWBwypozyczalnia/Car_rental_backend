@@ -135,12 +135,29 @@
     document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
         const carId = urlParams.get('id');
-        const errorDiv = document.getElementById("reservation-error");
         const userId = localStorage.getItem("userId");
+        const isAdmin = localStorage.getItem("isAdmin") === 'true';
         const deleteCarButton = document.getElementById("deleteCarButton");
         const updateCarButton = document.getElementById("updateCarButton");
+        const submitReservationButton = document.getElementById("submitReservation");
+        const errorDiv = document.getElementById("reservation-error");
 
-        // Funkcja do odświeżania kalendarza
+        // Ukryj przyciski na początku
+        deleteCarButton.style.display = "none";
+        updateCarButton.style.display = "none";
+        submitReservationButton.style.display = "none";
+
+        // Pokaż przyciski zgodnie z warunkami
+        if (userId) {
+            submitReservationButton.style.display = "block"; // Pokaż "Zarezerwuj"
+
+            if (isAdmin) {
+                deleteCarButton.style.display = "block"; // Pokaż "Usuń samochód"
+                updateCarButton.style.display = "block"; // Pokaż "Edytuj samochód"
+            }
+        }
+
+        // Funkcja odświeżania kalendarza
         function refreshCalendar() {
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
@@ -150,41 +167,31 @@
                 method: "GET",
                 credentials: "include"
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP ${response.status}: ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                const disabledDates = [];
-                data.forEach(reservation => {
-                    const startDate = new Date(reservation.startingDate);
-                    const endDate = new Date(reservation.endDate);
-
-                    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-                        disabledDates.push(new Date(d).toISOString().split("T")[0]);
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    const disabledDates = [];
+                    data.forEach(reservation => {
+                        const startDate = new Date(reservation.startingDate);
+                        const endDate = new Date(reservation.endDate);
+
+                        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                            disabledDates.push(new Date(d).toISOString().split("T")[0]);
+                        }
+                    });
+
+                    const datePicker = document.getElementById("datePicker")._flatpickr;
+                    datePicker.set("disable", disabledDates);
+                })
+                .catch(error => {
+                    console.error("Błąd podczas odświeżania kalendarza:", error);
                 });
-
-                const datePicker = document.getElementById("datePicker")._flatpickr;
-                datePicker.set("disable", disabledDates);
-            })
-            .catch(error => {
-                console.error("Błąd podczas odświeżania kalendarza:", error);
-            });
-        }
-
-        const isAdmin = localStorage.getItem("isAdmin");
-        console.log("Czy użytkownik jest administratorem?", isAdmin);
-
-        if (isAdmin === 'true') {
-            deleteCarButton.style.display = "block"; // Pokaż przycisk
-            updateCarButton.style.display = "block"; // Pokaż przycisk
-        } else {
-            console.log("Użytkownik nie jest administratorem");
         }
 
         // Inicjalizacja Flatpickr
@@ -193,7 +200,7 @@
             minDate: "today"
         });
 
-        // Pobierz szczegóły samochodu
+        // Pobieranie szczegółów samochodu
         if (carId) {
             fetch(`${API_BASE_URL}/api/cars/${carId}`, { method: 'GET', credentials: 'include' })
                 .then(response => response.json())
@@ -206,23 +213,15 @@
                     document.getElementById("mainImage").src = `${API_BASE_URL}/api/cars/images/${data.id}`;
                 })
                 .catch(err => console.error(err));
-                refreshCalendar();
+            refreshCalendar(); // Odświeżenie kalendarza po pobraniu szczegółów samochodu
         }
 
-        // Obsługa przycisku "Edytuj samochód"
-        updateCarButton.addEventListener("click", function () {
-            if (carId) {
-                window.location.href = `carUpdate.html?id=${carId}`;
-            } else {
-                alert("ID samochodu nie zostało znalezione.");
-            }
-        });
-
         // Obsługa rezerwacji
-        document.getElementById("submitReservation").addEventListener("click", function () {
+        submitReservationButton.addEventListener("click", function () {
             const selectedDates = datePicker.selectedDates;
-            console.log("Przycisk rezerwacji wcistniety");
-            errorDiv.textContent = ""; // Wyczyść poprzednie błędy
+
+            errorDiv.textContent = ""; // Wyczyść błędy
+
             if (!userId) {
                 errorDiv.textContent = "Użytkownik niezalogowany.";
                 return;
@@ -240,23 +239,17 @@
                 return `${year}-${month}-${day}`;
             };
 
-            const startingDate = formatDate(selectedDates[0]);
-            const endDate = formatDate(selectedDates[1]);
-            const reservationDate = formatDate(new Date());
-
             const reservationRequest = {
                 userId: userId,
                 carId: carId,
-                reservationDate: reservationDate,
-                startingDate: startingDate,
-                endDate: endDate,
+                reservationDate: formatDate(new Date()),
+                startingDate: formatDate(selectedDates[0]),
+                endDate: formatDate(selectedDates[1]),
             };
 
             fetch(`${API_BASE_URL}/api/reservation/add`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify(reservationRequest),
             })
@@ -266,10 +259,10 @@
                             throw new Error(text);
                         });
                     }
-                    return response.text(); // Obsługa odpowiedzi jako tekstu
+                    return response.text();
                 })
                 .then(message => {
-                    alert(message); // Wyświetlenie komunikatu serwera
+                    alert(message);
                     refreshCalendar(); // Odświeżenie kalendarza po dodaniu rezerwacji
                 })
                 .catch(error => {
@@ -277,7 +270,7 @@
                 });
         });
 
-        // Usuwanie samochodu po potwierdzeniu
+        // Obsługa usuwania samochodu
         deleteCarButton.addEventListener("click", function () {
             if (confirm("Czy na pewno chcesz usunąć ten samochód?")) {
                 fetch(`${API_BASE_URL}/api/cars/delete/${carId}`, {
@@ -300,8 +293,17 @@
                         alert(`Błąd: ${error.message}`);
                     });
             }
+        });
 
-    });});
+        // Obsługa edycji samochodu
+        updateCarButton.addEventListener("click", function () {
+            if (carId) {
+                window.location.href = `carUpdate.html?id=${carId}`;
+            } else {
+                alert("ID samochodu nie zostało znalezione.");
+            }
+        });
+    });
 
 </script>
 
